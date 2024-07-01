@@ -35,6 +35,9 @@ extern char *_ctermInternalGetTime();
 // load libraries into the cterm instance
 extern void _ctermInternalLoadLibraries(struct cterm_instance *instance);
 
+// printf to command line io
+extern void _ctermInternalPrintf(struct cterm_instance *instance, const char *format, ...);
+
 
 
 
@@ -50,13 +53,16 @@ struct cterm_instance _ctermInit() {
     i.internal_funcs.log = _ctermInternalLog;
     i.log_file_path = "cterm_log.log";
 
+    // load cprintf function into the instance
+    i.internal_funcs.cprintf = _ctermInternalPrintf;
+
 #if CTERM_INIT_EXTRA_LOG_IO == 1
     i.log_io_extra.input = stdin;
     i.log_io_extra.output = stdout;
 #endif
 
     // print early welcome message
-    i.internal_funcs.log(&i, i.log_file_path, "\n--- INITIALIZING CTERM INSTANCE---\n");
+    i.internal_funcs.log(&i, i.log_file_path, "\n--- INITIALIZING CTERM INSTANCE ---\n");
 
     // get current time
     char *current_time = _ctermInternalGetTime();
@@ -69,6 +75,14 @@ struct cterm_instance _ctermInit() {
     // load libraries
     i.internal_funcs.log(&i, i.log_file_path, "* loading libraries into the cterm instance\n");
     _ctermInternalLoadLibraries(&i);
+
+    // change "commands" to use proper english grammar
+    const char *str_commands = "commands";
+    if (i.commands_size == 1) {
+        str_commands = "command";
+    }
+
+    i.internal_funcs.log(&i, i.log_file_path, "* created cterm instance with %d external %s available\n", i.commands_size, str_commands);
 
     // complete initializing
     i.ready = true;

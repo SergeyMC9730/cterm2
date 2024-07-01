@@ -21,6 +21,17 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <cterm/cterm.h>
+#include <stdlib.h>
+#include <string.h>
+
+char *_ctermInternalGetModPrefix(const char *command) {
+    unsigned int size = strlen(command) + 2 + 1;
+    char *data = (char *)malloc(size);
+
+    snprintf(data, size, " [%s]  ", command);
+
+    return data;
+}
 
 void _ctermInternalLog(struct cterm_instance *instance, const char *file, const char *format, ...) {
     // open file in "a" mode (append)
@@ -30,7 +41,19 @@ void _ctermInternalLog(struct cterm_instance *instance, const char *file, const 
     va_list arglist;
     va_start(arglist, format);
 
-    // print formatted data into file
+    // check if we are inside a command
+    if (instance->processed_command != NULL) {
+        // get prefix
+        char *prefix = _ctermInternalGetModPrefix(instance->processed_command->name);
+
+        // output this prefix    
+        fprintf(log_file, "%s", prefix);
+
+        // free prefix
+        free(prefix);
+    }
+
+    // print formatted data into files
     vfprintf(log_file, format, arglist);
 
     // unload arguments
@@ -43,6 +66,18 @@ void _ctermInternalLog(struct cterm_instance *instance, const char *file, const 
 
     // load variadic arguments again
     va_start(arglist, format);
+
+    // check if we are inside a command
+    if (instance->processed_command != NULL) {
+        // get prefix
+        char *prefix = _ctermInternalGetModPrefix(instance->processed_command->name);
+
+        // output this prefix    
+        fprintf(instance->log_io_extra.output, "%s", prefix);
+
+        // free prefix
+        free(prefix);
+    }
 
     // print formatted data into stdout or something else
     // defined in the instance->log_io_extra.output

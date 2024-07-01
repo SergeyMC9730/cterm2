@@ -18,17 +18,9 @@
 	You can contact Sergei Baigerov in Discord -- @dogotrigger
 */
 
-#include <cterm/launcher.h>
 #include <cterm/cterm.h>
-#include <stdio.h>
 
-int main() {
-    _ctLauncherPrintLicense();
-
-    // create instance
-    struct cterm_instance instance = _ctermInit();
-
-    _ctermInitCommandLine(&instance, stdin, stdout);
-
-	return 0;
+// get cterm version
+const char *_ctermGetVersion() {
+    return "v2.0.0";
 }

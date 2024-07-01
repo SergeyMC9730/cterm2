@@ -25,6 +25,9 @@
 #include <string.h>
 #include <stdlib.h>
 
+// make private functions accessible inside this file
+extern void _ctermInternalPushModule(struct cterm_instance *instance, struct cterm_module module);
+
 bool _ctermInternalVerifyExt(const char *str, const char *ext) {
     size_t str_len = strlen(str);
     size_t ext_len = strlen(ext);
@@ -39,8 +42,6 @@ bool _ctermInternalVerifyExt(const char *str, const char *ext) {
 
 // load libraries into the cterm instance
 void _ctermLoadLibrariesFromFolder(struct cterm_instance *instance, const char *path) {
-    instance->ready = false;
-
     if (path == NULL) {
         instance->internal_funcs.log(instance, instance->log_file_path, "* loading libraries from   ... : FAILED (1)\n");
     
@@ -79,18 +80,38 @@ void _ctermLoadLibrariesFromFolder(struct cterm_instance *instance, const char *
 
         instance->internal_funcs.log(instance, instance->log_file_path, "  * loading %s : ", file_path);
 
+        // try to load module
         struct cterm_module module = _ctermLoadModule(instance, file_path);
+        
+        // check if module did not load
         if (!module.load_successful) {
             int reason = 2;
 
+            // check if os failed to load this library
             if (!module.native_representation.load_successful) reason = 1;
 
-            instance->internal_funcs.log(instance, instance->log_file_path, "FAILED (%d)\n", reason);
+            // print error
+            instance->internal_funcs.log(instance, instance->log_file_path, "FAILED (%d", reason);
 
+            // check if error is os-related
+            if (reason == 1) {
+                // print output from native library loader error
+                instance->internal_funcs.log(instance, instance->log_file_path, ": %s)\n", module.native_representation.load_error);
+            
+                // free error
+                free(module.native_representation.load_error);
+            } else {
+                instance->internal_funcs.log(instance, instance->log_file_path, ")\n");
+            }
+
+            // free file path string
             free(file_path);
 
             continue;
         }
+
+        // push this module
+        _ctermInternalPushModule(instance, module);
             
         instance->internal_funcs.log(instance, instance->log_file_path, "SUCCESS\n");
         instance->internal_funcs.log(instance, instance->log_file_path, "    * \"%s\" - %s\n", module.name, module.version);
@@ -99,6 +120,4 @@ void _ctermLoadLibrariesFromFolder(struct cterm_instance *instance, const char *
     }
 
     closedir(current_dir);
-
-    instance->ready = true;
 }

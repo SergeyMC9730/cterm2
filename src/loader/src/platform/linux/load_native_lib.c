@@ -21,6 +21,8 @@
 #include <cterm/cterm.h>
 #include <dlfcn.h>
 #include <stddef.h>
+#include <string.h>
+#include <stdlib.h>
 
 // make unlisted function accessible inside this file
 
@@ -37,6 +39,16 @@ struct cterm_native_module _ctermLoadNativeLibrary(const char *library_path) {
     nmod.native_handle = dlopen(nmod.path, RTLD_NOW);
 
     nmod.load_successful = nmod.native_handle != NULL;
+
+    // check if loading failed
+    if (!nmod.load_successful) {
+        const char *de = dlerror();
+
+        char *_de = (char *)malloc(strlen(de) + 1);
+        strcpy(_de, de);
+
+        nmod.load_error = _de;
+    }
 
     return nmod;
 }

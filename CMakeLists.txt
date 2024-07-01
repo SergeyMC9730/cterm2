@@ -29,10 +29,16 @@ add_library(${CTERM_LIBRARY_NAME} SHARED
 	src/loader/src/base/init.c
 	src/loader/src/base/log.c
 	src/loader/src/base/time.c
-	src/loader/src/module/load_libraries.c
-	src/loader/src/cmd/command_line.c
+	src/loader/src/library/load_libraries.c
+	src/loader/src/command/command_line.c
 	src/loader/src/module/load_module.c
-	src/loader/src/module/load_libraries_p.c
+	src/loader/src/library/load_libraries_p.c
+	src/loader/src/module/push_module_p.c
+	src/loader/src/command/push_command_p.c
+	src/loader/src/command/get_command.c
+	src/loader/src/base/version.c
+	src/loader/src/command/register_command.c
+	src/loader/src/base/cterm_printf.c
 
 	${CTERM_NATIVE_SRC}
 )
@@ -56,3 +62,4 @@ add_library(cterm_ext_test SHARED src/applications/helloworld/src/main.c)
 target_include_directories(cterm_ext_test PRIVATE
 	${CTERM_API_INCLUDES}
 )
+target_link_libraries(cterm_ext_test ${CTERM_LIBRARY_NAME})

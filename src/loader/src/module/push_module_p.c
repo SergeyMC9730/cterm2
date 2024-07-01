@@ -19,10 +19,20 @@
 */
 
 #include <cterm/cterm.h>
+#include <stddef.h>
 #include <stdlib.h>
 
-// inits command line for this instance
-// this is a synchronous function! this function would exit only on an according command
-void _ctermInitCommandLine(struct cterm_instance *instance, FILE *input, FILE *output) {
+void _ctermInternalPushModule(struct cterm_instance *instance, struct cterm_module module) {
+    // increase size of the modules array
+    instance->modules_size++;
 
+    // calculate array size to be allocated
+    unsigned int struct_size = sizeof(struct cterm_module);
+    unsigned int alloc_size = struct_size * instance->modules_size;
+
+    // reallocate modules array
+    CTERM_SAFE_REALLOC(instance->modules, alloc_size, struct cterm_module);
+
+    // add new module
+    instance->modules[instance->modules_size - 1] = module;
 }

@@ -31,6 +31,8 @@ extern "C" {
 struct _IO_FILE;
 typedef struct _IO_FILE FILE;
 
+#pragma pack(push, 1)
+
 struct cterm_native_module {
     void *(*acquire_function)(struct cterm_native_module module, const char *func_name);
 
@@ -41,6 +43,7 @@ struct cterm_native_module {
 #endif
 
     bool load_successful;
+    char *load_error;
 };
 
 #define CTERM_FPTR_CAST(ret, ...) ret (*)(__VA_ARGS__)
@@ -58,16 +61,23 @@ struct cterm_module {
 
     bool load_successful;
 
-    void (*on_init)(struct cterm_module *module);
-    void (*on_close)(struct cterm_module *module);
+    CTERM_FPTR(on_init, void, struct cterm_module *module);
+    CTERM_FPTR(on_close, void, struct cterm_module *module);
 };
+
+#define CTERM_COMMAND_EXECUTE CTERM_FPTR(execute, bool, struct cterm_command *command)
 
 struct cterm_command {
-    struct cterm_module *linked_module;
-
     const char *name;
     const char *description;
+
+    int argc;
+    char **argv;
+
+    CTERM_COMMAND_EXECUTE;
 };
+
+typedef struct cterm_command* cterm_command_alloc;
 
 struct cterm_pipe_io {
     FILE *input;
@@ -78,8 +88,12 @@ struct cterm_instance {
     struct cterm_command *commands;
     unsigned int commands_size;
 
+    struct cterm_module *modules;
+    unsigned int modules_size;
+
     struct cterm_internal {
         void (*log)(struct cterm_instance *instance, const char *file, const char *format, ...);
+        void (*cprintf)(struct cterm_instance *instance, const char *format, ...);
     } internal_funcs;
 
     struct cterm_pipe_io command_line;
@@ -87,15 +101,17 @@ struct cterm_instance {
     const char *log_file_path;
     struct cterm_pipe_io log_io_extra;
 
+    struct cterm_command *processed_command;
+
     bool ready;
 };
+
+#pragma pack(pop)
 
 struct cterm_instance _ctermInit();
 
 struct cterm_module _ctermLoadModule(struct cterm_instance *instance, const char *module_path);
 struct cterm_native_module _ctermLoadNativeLibrary(const char *library_path);
-
-void _ctermParseModule(struct cterm_instance *instance, struct cterm_module module);
 
 // inits command line for this instance
 // this is a synchronous function! this function would exit only on an according command
@@ -104,7 +120,19 @@ void _ctermInitCommandLine(struct cterm_instance *instance, FILE *input, FILE *o
 // load libraries into the cterm instance
 void _ctermLoadLibrariesFromFolder(struct cterm_instance *instance, const char *path);
 
+// tries to find command by its name and make a copy of it
+// you should free this command after use!
+cterm_command_alloc _ctermGetCommand(struct cterm_instance *instance, const char *command);
+
+// get cterm version
+const char *_ctermGetVersion();
+
+// register command
+void _ctermRegisterCommand(struct cterm_instance *instance, const char *command, const char *description, CTERM_COMMAND_EXECUTE);
+
 #define CTERM_INIT_MODULE(name, description, version) const char *get_module_name() { return name; } const char *get_module_description() { return description; } const char *get_module_version() { return version; }
+
+#define CTERM_SAFE_REALLOC(value, size, ...) if (value == NULL) { value = (__VA_ARGS__ *)(malloc(size)); } else { value = (__VA_ARGS__ *)(realloc(value, size)); }
 
 #ifdef __cplusplus
 }

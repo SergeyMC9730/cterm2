@@ -18,17 +18,18 @@
 	You can contact Sergei Baigerov in Discord -- @dogotrigger
 */
 
-#include <cterm/launcher.h>
 #include <cterm/cterm.h>
-#include <stdio.h>
+#include <stddef.h>
 
-int main() {
-    _ctLauncherPrintLicense();
+// make private functions accessible inside this file
+extern void _ctermInternalPushCommand(struct cterm_instance *instance, struct cterm_command command);
 
-    // create instance
-    struct cterm_instance instance = _ctermInit();
+void _ctermRegisterCommand(struct cterm_instance *instance, const char *command_name, const char *description, CTERM_COMMAND_EXECUTE) {
+    struct cterm_command command = {};
 
-    _ctermInitCommandLine(&instance, stdin, stdout);
+    command.description = description;
+    command.name = command_name;
+    command.execute = execute;
 
-	return 0;
+    _ctermInternalPushCommand(instance, command);
 }

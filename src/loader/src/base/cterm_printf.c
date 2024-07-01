@@ -18,17 +18,22 @@
 	You can contact Sergei Baigerov in Discord -- @dogotrigger
 */
 
-#include <cterm/launcher.h>
 #include <cterm/cterm.h>
+#include <stdarg.h>
 #include <stdio.h>
 
-int main() {
-    _ctLauncherPrintLicense();
+void _ctermInternalPrintf(struct cterm_instance *instance, const char *format, ...) {
+    // check if printing is not possible
+    if (instance->command_line.output == NULL) return;
+    
+    // init variable arguments
+    va_list arglist;
+    va_start(arglist, format);
 
-    // create instance
-    struct cterm_instance instance = _ctermInit();
+    // print formatted data into stdout or something else
+    // defined in the instance->command_line.output
+    vfprintf(instance->command_line.output, format, arglist);
 
-    _ctermInitCommandLine(&instance, stdin, stdout);
-
-	return 0;
+    // unload arguments
+    va_end(arglist);
 }

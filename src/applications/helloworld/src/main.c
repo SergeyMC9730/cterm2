@@ -24,8 +24,18 @@ void aa() {
     return;
 }
 
+struct cterm_instance *_instance;
+
+bool execute(struct cterm_command *command) {
+    _instance->internal_funcs.log(_instance, _instance->log_file_path, "Hello, World!");
+
+    return true;
+}
+
 void on_init(struct cterm_module *module) {
-    module->cterm_instance->internal_funcs.log(module->cterm_instance, module->cterm_instance->log_file_path, "Hello, World!");
+    _instance = module->cterm_instance;
+
+    _ctermRegisterCommand(_instance, "test", "Hello, World!", execute);
 }
 
 CTERM_INIT_MODULE("test module", "official testing module", "v1.0.0");
