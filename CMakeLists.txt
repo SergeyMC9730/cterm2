@@ -49,6 +49,9 @@ add_library(${CTERM_LIBRARY_NAME} SHARED
 target_include_directories(${CTERM_LIBRARY_NAME} PRIVATE
 	${CTERM_API_INCLUDES}
 )
+target_link_libraries(${CTERM_LIBRARY_NAME}
+	dl
+)
 
 add_executable(${CTERM_LAUNCHER_NAME}
 	src/launcher/src/main.c
