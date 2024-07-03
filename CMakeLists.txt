@@ -39,6 +39,10 @@ add_library(${CTERM_LIBRARY_NAME} SHARED
 	src/loader/src/base/version.c
 	src/loader/src/command/register_command.c
 	src/loader/src/base/cterm_printf.c
+	src/loader/src/command/free_input.c
+	src/loader/src/command/parse_input.c
+	src/loader/src/tools/copy_string.c
+	src/loader/src/command/help.c
 
 	${CTERM_NATIVE_SRC}
 )

@@ -18,19 +18,8 @@
 	You can contact Sergei Baigerov in Discord -- @dogotrigger
 */
 
-#include <cterm/cterm.h>
-#include <stdio.h>
+#pragma once
 
-bool execute(struct cterm_command *command) {
-    struct cterm_instance *instance = command->linked_instance;
-
-    instance->internal_funcs.cprintf(instance, "Hello, World!\n");
-
-    return true;
-}
-
-void on_init(struct cterm_module *module) {
-    _ctermRegisterCommand(module->cterm_instance, "test", "Hello, World!", execute);
-}
-
-CTERM_INIT_MODULE("test module", "official testing module", "v1.0.0");
+#define CTERM_SAFE_REALLOC(value, size, ...) if (value == NULL) { value = (__VA_ARGS__ *)(malloc(size)); } else { value = (__VA_ARGS__ *)(realloc(value, size)); }
+#define CTERM_FPTR_CAST(ret, ...) ret (*)(__VA_ARGS__)
+#define CTERM_FPTR(name, ret, ...) ret (*name)(__VA_ARGS__)

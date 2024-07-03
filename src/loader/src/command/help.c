@@ -19,18 +19,21 @@
 */
 
 #include <cterm/cterm.h>
-#include <stdio.h>
+#include <cterm/cterm_general_tools.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
 
-bool execute(struct cterm_command *command) {
-    struct cterm_instance *instance = command->linked_instance;
+#define CPRINTF(format, ...) instance->internal_funcs.cprintf(instance, format, __VA_ARGS__)
 
-    instance->internal_funcs.cprintf(instance, "Hello, World!\n");
+bool _ctermInternalHelp(struct cterm_command *_command_ref) {
+    struct cterm_instance *instance = _command_ref->linked_instance;
 
+    for (unsigned int i = 0; i < instance->commands_size; i++) {
+        struct cterm_command *command_ref = instance->commands + i;
+
+        CPRINTF("%s —— %s\n", command_ref->name, command_ref->description);
+    }
+    
     return true;
 }
-
-void on_init(struct cterm_module *module) {
-    _ctermRegisterCommand(module->cterm_instance, "test", "Hello, World!", execute);
-}
-
-CTERM_INIT_MODULE("test module", "official testing module", "v1.0.0");

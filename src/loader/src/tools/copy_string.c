@@ -18,19 +18,19 @@
 	You can contact Sergei Baigerov in Discord -- @dogotrigger
 */
 
-#include <cterm/cterm.h>
-#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-bool execute(struct cterm_command *command) {
-    struct cterm_instance *instance = command->linked_instance;
+char *_ctermCopyString(const char *string) {
+    // get length of the requested string
+    unsigned int len = strlen(string);
 
-    instance->internal_funcs.cprintf(instance, "Hello, World!\n");
+    // allocate with new string with a zero-terminator
+    char *new_string = (char *)malloc(len + 1);
 
-    return true;
+    // copy string to new_string
+    strcpy(new_string, string);
+    
+    // return new_string
+    return new_string;
 }
-
-void on_init(struct cterm_module *module) {
-    _ctermRegisterCommand(module->cterm_instance, "test", "Hello, World!", execute);
-}
-
-CTERM_INIT_MODULE("test module", "official testing module", "v1.0.0");

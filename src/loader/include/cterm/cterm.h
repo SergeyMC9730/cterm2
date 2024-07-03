@@ -21,6 +21,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <cterm/cterm_general_macros.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,9 +47,6 @@ struct cterm_native_module {
     char *load_error;
 };
 
-#define CTERM_FPTR_CAST(ret, ...) ret (*)(__VA_ARGS__)
-#define CTERM_FPTR(name, ret, ...) ret (*name)(__VA_ARGS__)
-
 struct cterm_instance;
 
 struct cterm_module {
@@ -73,6 +71,8 @@ struct cterm_command {
 
     int argc;
     char **argv;
+    
+    struct cterm_instance *linked_instance;
 
     CTERM_COMMAND_EXECUTE;
 };
@@ -131,8 +131,6 @@ const char *_ctermGetVersion();
 void _ctermRegisterCommand(struct cterm_instance *instance, const char *command, const char *description, CTERM_COMMAND_EXECUTE);
 
 #define CTERM_INIT_MODULE(name, description, version) const char *get_module_name() { return name; } const char *get_module_description() { return description; } const char *get_module_version() { return version; }
-
-#define CTERM_SAFE_REALLOC(value, size, ...) if (value == NULL) { value = (__VA_ARGS__ *)(malloc(size)); } else { value = (__VA_ARGS__ *)(realloc(value, size)); }
 
 #ifdef __cplusplus
 }

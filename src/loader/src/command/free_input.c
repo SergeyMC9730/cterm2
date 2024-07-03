@@ -18,19 +18,13 @@
 	You can contact Sergei Baigerov in Discord -- @dogotrigger
 */
 
-#include <cterm/cterm.h>
-#include <stdio.h>
+#include <cterm/cterm_command_line.h>
+#include <stdlib.h>
 
-bool execute(struct cterm_command *command) {
-    struct cterm_instance *instance = command->linked_instance;
+void _ctermInternalCleanupInput(struct cterm_command_line_input input) {
+    for (int i = 0; i < input.argument_list_size; i++) {
+        free(input.argument_list[i]);
+    }
 
-    instance->internal_funcs.cprintf(instance, "Hello, World!\n");
-
-    return true;
+    free(input.argument_list);
 }
-
-void on_init(struct cterm_module *module) {
-    _ctermRegisterCommand(module->cterm_instance, "test", "Hello, World!", execute);
-}
-
-CTERM_INIT_MODULE("test module", "official testing module", "v1.0.0");

@@ -20,11 +20,22 @@
 
 #include <cterm/cterm.h>
 #include <stddef.h>
+#include <stdlib.h>
 
 // make private functions accessible inside this file
 extern void _ctermInternalPushCommand(struct cterm_instance *instance, struct cterm_command command);
 
 void _ctermRegisterCommand(struct cterm_instance *instance, const char *command_name, const char *description, CTERM_COMMAND_EXECUTE) {
+    // try to get command
+    cterm_command_alloc _c = _ctermGetCommand(instance, command_name);
+    
+    // check if command exist
+    if (_c != NULL) {
+        free(_c);
+
+        return;
+    }
+    
     struct cterm_command command = {};
 
     command.description = description;

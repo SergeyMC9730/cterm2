@@ -65,6 +65,7 @@ cterm_command_alloc _ctermGetCommand(struct cterm_instance *instance, const char
     _command->description = cmd_ptr->description;
     _command->execute = cmd_ptr->execute;
     _command->name = cmd_ptr->name;
+    _command->linked_instance = instance;
 
     return _command;
 }
