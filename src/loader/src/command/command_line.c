@@ -36,8 +36,10 @@ void _ctermInternalPrintStringArray(char **argv, int argc) {
 extern void _ctermInternalCleanupInput(struct cterm_command_line_input input);
 extern struct cterm_command_line_input _ctermInternalParseInput(const char *user_input);
 extern unsigned int _ctermInternalGetCommandIndex(struct cterm_instance *instance, const char *name);
+extern char *_ctermInternalFilterInput(const char *v, char f);
 
 extern bool _ctermInternalHelp(struct cterm_command *command);
+extern bool _ctermInternalLicenseCommand(struct cterm_command *command);
 
 // inits command line for this instance
 // this is a synchronous function! this function would exit only on an according command
@@ -51,6 +53,7 @@ void _ctermInitCommandLine(struct cterm_instance *instance, FILE *_input, FILE *
     _ctermRegisterCommand(instance, "help", "Help command", _ctermInternalHelp);
     _ctermRegisterCommand(instance, "exit", "Exit from terminal", _ctermInternalHelp);
     _ctermRegisterCommand(instance, "line", "Internal command line", _ctermInternalHelp);
+    _ctermRegisterCommand(instance, "license", "See license", _ctermInternalLicenseCommand);
 
     CPRINTF("\n--- Welcome to CTerm %s\n\b", _ctermGetVersion());
 
@@ -77,50 +80,37 @@ void _ctermInitCommandLine(struct cterm_instance *instance, FILE *_input, FILE *
         // get string from user
         fgets(string_buffer, 1024, instance->command_line.input);
 
-        // parse input string
-        struct cterm_command_line_input input = _ctermInternalParseInput(string_buffer);
+        // filter string fron newlines
+        char *filtered_string_buf = _ctermInternalFilterInput(string_buffer, '\n');
 
-        // check if parsing failed. if failed dont do anything
-        if (input.argument_list_size == 0) continue;
+        struct cterm_execute_result result = {};
 
-        // check if requested command is "exit"
-        if (!strcmp(input.argument_list[0], "exit")) {
-            // cleanup parsed input
-            _ctermInternalCleanupInput(input);
-            
+        // try to execute command
+        _ctermExecute(instance, filtered_string_buf, &result);
+
+        // remove filtered string buffer
+        free(filtered_string_buf);
+
+        command_failed = !result.execute_successful;
+
+        // check if command is exit
+        if (result.internal_command == ICommandExit) {
+            free(result.executed_command);
+
             break;
         }
-
-        // check if requested command is "line"
-        else if (!strcmp(input.argument_list[0], "line")) {
+        
+        // check if command is line
+        else if (result.internal_command == ICommandLine) {
             _ctermInitCommandLine(instance, _input, output);
-        } else {
-            // try to find command
-            cterm_command_alloc command = _ctermGetCommand(instance, input.argument_list[0]);
-
-            // check if command does not exist
-            if (command == NULL) {
-                CPRINTF("%s: command not found\n", input.argument_list[0]);
-                command_failed = true;
-            } else {
-                // setup log stuff
-                instance->processed_command = instance->commands + _ctermInternalGetCommandIndex(instance, command->name);
-
-                command->linked_instance = instance;
-
-                // execute command if possible
-                if (command->execute) {
-                    command_failed = !command->execute(command);
-                }
-
-                instance->processed_command = NULL;
-
-                free(command);
-            }
         }
 
-        // cleanup parsed input
-        _ctermInternalCleanupInput(input);
+        // check if command doesnt exist
+        if (result.command_not_found) {
+            CPRINTF("%s: command not found\n", result.executed_command);
+        }
+
+        free(result.executed_command);
     }
 
     // free string_buffer because we dont need it anymore

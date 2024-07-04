@@ -19,19 +19,16 @@
 */
 
 #include <cterm/cterm.h>
-#include <stdio.h>
+#include <cterm/cterm_general_macros.h>
+#include <stdlib.h>
 
-bool execute(struct cterm_command *command) {
-    struct cterm_instance *instance = command->linked_instance;
+// closes this instance
+void _ctermClose(struct cterm_instance *instance) {
+    instance->internal_funcs.log(instance, instance->log_file_path, "* exiting from cterm\n * removing commands\n");
+    CTERM_SAFE_FREE(instance->commands);
 
-    instance->internal_funcs.cprintf(instance, "Hello, World!\n");
-    instance->internal_funcs.log(instance, instance->log_file_path, "Hello, World!\n");
+    instance->internal_funcs.log(instance, instance->log_file_path, " * removing modules\n");
+    CTERM_SAFE_FREE(instance->modules);
 
-    return true;
+    instance->internal_funcs.log(instance, instance->log_file_path, "* bye!\n");
 }
-
-void on_init(struct cterm_module *module) {
-    _ctermRegisterCommand(module->cterm_instance, "test", "Hello, World!", execute);
-}
-
-CTERM_INIT_MODULE("test module", "official testing module", "v1.0.0");

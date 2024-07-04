@@ -44,7 +44,7 @@ extern void _ctermInternalPrintf(struct cterm_instance *instance, const char *fo
 
 
 
-struct cterm_instance _ctermInit() {
+struct cterm_instance _ctermInit(bool log_into_stdout) {
     // create instance inside the stack
     // also set everything to zero or NULL
     struct cterm_instance i = {};
@@ -56,10 +56,10 @@ struct cterm_instance _ctermInit() {
     // load cprintf function into the instance
     i.internal_funcs.cprintf = _ctermInternalPrintf;
 
-#if CTERM_INIT_EXTRA_LOG_IO == 1
-    i.log_io_extra.input = stdin;
-    i.log_io_extra.output = stdout;
-#endif
+    if (log_into_stdout && CTERM_INIT_EXTRA_LOG_IO) {
+        i.log_io_extra.input = stdin;
+        i.log_io_extra.output = stdout;
+    }
 
     // print early welcome message
     i.internal_funcs.log(&i, i.log_file_path, "\n--- INITIALIZING CTERM INSTANCE ---\n");

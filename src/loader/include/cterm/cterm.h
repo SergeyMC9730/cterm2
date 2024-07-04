@@ -29,8 +29,7 @@ extern "C" {
 
 #define CTERM_INIT_EXTRA_LOG_IO 1
 
-struct _IO_FILE;
-typedef struct _IO_FILE FILE;
+#include <stdio.h>
 
 #pragma pack(push, 1)
 
@@ -42,12 +41,16 @@ struct cterm_native_module {
 #ifdef __unix__
     void *native_handle;
 #endif
+#ifdef _WIN32
+    void* native_handle;
+#endif
 
     bool load_successful;
     char *load_error;
 };
 
 struct cterm_instance;
+struct cterm_execute_result;
 
 struct cterm_module {
     struct cterm_native_module native_representation;
@@ -108,7 +111,7 @@ struct cterm_instance {
 
 #pragma pack(pop)
 
-struct cterm_instance _ctermInit();
+struct cterm_instance _ctermInit(bool log_into_stdout);
 
 struct cterm_module _ctermLoadModule(struct cterm_instance *instance, const char *module_path);
 struct cterm_native_module _ctermLoadNativeLibrary(const char *library_path);
@@ -129,6 +132,12 @@ const char *_ctermGetVersion();
 
 // register command
 void _ctermRegisterCommand(struct cterm_instance *instance, const char *command, const char *description, CTERM_COMMAND_EXECUTE);
+
+// executes command
+void _ctermExecute(struct cterm_instance *instance, const char *input, struct cterm_execute_result *result);
+
+// closes this instance
+void _ctermClose(struct cterm_instance *instance);
 
 #define CTERM_INIT_MODULE(name, description, version) const char *get_module_name() { return name; } const char *get_module_description() { return description; } const char *get_module_version() { return version; }
 

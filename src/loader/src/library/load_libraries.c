@@ -19,9 +19,15 @@
 */
 
 #include <cterm/cterm.h>
+#include <cterm/cterm_general_tools.h>
 #include <stddef.h>
 #include <stdio.h>
+#ifdef __unix__
 #include <dirent.h>
+#endif
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #include <string.h>
 #include <stdlib.h>
 
@@ -41,42 +47,83 @@ bool _ctermInternalVerifyExt(const char *str, const char *ext) {
 }
 
 // load libraries into the cterm instance
-void _ctermLoadLibrariesFromFolder(struct cterm_instance *instance, const char *path) {
-    if (path == NULL) {
+void _ctermLoadLibrariesFromFolder(struct cterm_instance *instance, const char *_path) {
+    if (_path == NULL) {
         instance->internal_funcs.log(instance, instance->log_file_path, "* loading libraries from   ... : FAILED (1)\n");
     
         return;
     }
 
-    instance->internal_funcs.log(instance, instance->log_file_path, "* loading libraries from %s ... : ", path);
+    instance->internal_funcs.log(instance, instance->log_file_path, "* loading libraries from %s ... : ", _path);
     
     // try to open specified directory
+#ifdef __unix__
+    char* path = _ctermCopyString(_path);
     DIR *current_dir = opendir(path); 
 
-    if (!current_dir) { 
+    // check if directory exists
+    if (!current_dir) {
         instance->internal_funcs.log(instance, instance->log_file_path, "FAILED (2)\n");
 
         return;
     }
+#endif
+#ifdef _WIN32
+    size_t path_len = strlen(_path);
+
+    char* path = (char*)(malloc(path_len + 3));
+    
+    snprintf(path, path_len + 3, "%s\\*", _path);
+
+    WIN32_FIND_DATA ffd;
+
+    // check if directory is not empty
+    HANDLE hFind = FindFirstFile(path, &ffd);
+    if (hFind == INVALID_HANDLE_VALUE) {
+        instance->internal_funcs.log(instance, instance->log_file_path, "FAILED (3)\n");
+
+        return;
+    }
+#endif
 
     instance->internal_funcs.log(instance, instance->log_file_path, "PROCESSING\n");
 
+#ifdef __unix__
     struct dirent *de;
+
     // loop through all files inside directory
     while ((de = readdir(current_dir)) != NULL) {
+        const char* file_name = de->d_name;
+        char dir_separator = '/';
+#endif
+#ifdef _WIN32
+    while (FindNextFile(hFind, &ffd) != 0) {
+        const char* file_name = ffd.cFileName;
+        char dir_separator = '\\';
+#endif
         // calculate size of file_path string
-        size_t file_path_size = strlen(path) + 1 + strlen(de->d_name) + 1;
+        size_t file_path_size = strlen(_path) + 1 + strlen(file_name) + 1;
 
         // allocate string to put file path into it
         char *file_path = (char *)malloc(file_path_size);
 
         // format string (put filepath into this string)
-        snprintf(file_path, file_path_size, "%s/%s", path, de->d_name);
+        snprintf(file_path, file_path_size, "%s%c%s", _path, dir_separator, file_name);  
 
         // check if file_path contains "cterm_ext". if not, dont do anything
-        if(!strstr(file_path, "cterm_ext")) continue;
+        if (!strstr(file_path, "cterm_ext")) {
+            // print error
+            // instance->internal_funcs.log(instance, instance->log_file_path, "FAILED (3)\n");
+
+            continue;
+        }
         // check if extension is valid
-        if (!_ctermInternalVerifyExt(de->d_name, "so") && !_ctermInternalVerifyExt(de->d_name, "dll")) continue;
+        if (!_ctermInternalVerifyExt(file_name, "so") && !_ctermInternalVerifyExt(file_name, "dll")) {
+            // print error
+            // instance->internal_funcs.log(instance, instance->log_file_path, "FAILED (4)\n");
+
+            continue;
+        }
 
         instance->internal_funcs.log(instance, instance->log_file_path, "  * loading %s : ", file_path);
 
@@ -119,5 +166,12 @@ void _ctermLoadLibrariesFromFolder(struct cterm_instance *instance, const char *
         // we should not free file_path because its used in module.native_representation.path
     }
 
+#ifdef __unix__
     closedir(current_dir);
+#endif
+#ifdef _WIN32
+    FindClose(hFind);
+#endif
+
+    free(path);
 }

@@ -14,13 +14,21 @@ if (UNIX)
 		src/loader/src/platform/linux/load_native_lib.c
 		src/loader/src/platform/linux/acquire_function.c
 	)
+	set (CTERM_NATIVE_LIBS
+		dl
+	)
 
 	message(STATUS "Compiling CTerm for Unix-based systems")
 endif (UNIX)
 if (WIN32)
     set (CTERM_NATIVE_SRC
 		src/loader/src/platform/windows/load_native_lib.c
+		src/loader/src/platform/windows/acquire_function.c
 	)
+	set (CTERM_NATIVE_LIBS
+		User32.lib
+	)
+	set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 
 	message(STATUS "Compiling CTerm for NT-based systems")
 endif (WIN32)
@@ -43,6 +51,10 @@ add_library(${CTERM_LIBRARY_NAME} SHARED
 	src/loader/src/command/parse_input.c
 	src/loader/src/tools/copy_string.c
 	src/loader/src/command/help.c
+	src/loader/src/command/execute.c
+	src/loader/src/base/close.c
+	src/loader/src/command/license.c
+	src/loader/src/command/filter_input.c
 
 	${CTERM_NATIVE_SRC}
 )
@@ -50,7 +62,7 @@ target_include_directories(${CTERM_LIBRARY_NAME} PRIVATE
 	${CTERM_API_INCLUDES}
 )
 target_link_libraries(${CTERM_LIBRARY_NAME}
-	dl
+	${CTERM_NATIVE_LIBS}
 )
 
 add_executable(${CTERM_LAUNCHER_NAME}

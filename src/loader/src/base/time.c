@@ -35,7 +35,12 @@ char *_ctermInternalGetTime() {
     char *result = (char *)malloc(64);
 
     // make timestamp localized, put time info into lt
+#ifdef __unix__
     localtime_r(&current_time, &lt);
+#endif
+#ifdef _WIN32
+    _localtime64_s(&lt, &current_time);
+#endif
 
     // format string
     strftime(result, 64, format, &lt);

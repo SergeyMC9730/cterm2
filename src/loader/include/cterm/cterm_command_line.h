@@ -24,9 +24,27 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
 struct cterm_command_line_input {
     char **argument_list;
     int argument_list_size;
+};
+
+enum cterm_internal_commands {
+    ICommandNotACommand,
+    ICommandLine,
+    ICommandExit
+};
+
+struct cterm_execute_result {
+    bool execute_successful;
+    bool command_not_found;
+    bool empty;
+
+    enum cterm_internal_commands internal_command;
+
+    char *executed_command;
 };
 
 #ifdef __cplusplus

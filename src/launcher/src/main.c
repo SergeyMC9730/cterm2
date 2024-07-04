@@ -18,17 +18,23 @@
 	You can contact Sergei Baigerov in Discord -- @dogotrigger
 */
 
-#include <cterm/launcher.h>
-#include <cterm/cterm.h>
 #include <stdio.h>
+#include <cterm/launcher.h>
+#include <cterm/cterm_command_line.h>
+#include <cterm/cterm_general_macros.h>
+#include <cterm/cterm.h>
+#include <stdlib.h>
 
 int main() {
     _ctLauncherPrintLicense();
 
     // create instance
-    struct cterm_instance instance = _ctermInit();
+    struct cterm_instance instance = _ctermInit(false);
 
+    // setup internal command line
     _ctermInitCommandLine(&instance, stdin, stdout);
+    
+    _ctermClose(&instance);
 
 	return 0;
 }

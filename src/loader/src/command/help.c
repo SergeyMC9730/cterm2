@@ -32,7 +32,7 @@ bool _ctermInternalHelp(struct cterm_command *_command_ref) {
     for (unsigned int i = 0; i < instance->commands_size; i++) {
         struct cterm_command *command_ref = instance->commands + i;
 
-        CPRINTF("%s —— %s\n", command_ref->name, command_ref->description);
+        CPRINTF("%s - %s\n", command_ref->name, command_ref->description);
     }
     
     return true;

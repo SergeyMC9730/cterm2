@@ -21,5 +21,7 @@
 #pragma once
 
 #define CTERM_SAFE_REALLOC(value, size, ...) if (value == NULL) { value = (__VA_ARGS__ *)(malloc(size)); } else { value = (__VA_ARGS__ *)(realloc(value, size)); }
+#define CTERM_SAFE_FREE(value) if (value != NULL) { free(value); value = NULL; }
+
 #define CTERM_FPTR_CAST(ret, ...) ret (*)(__VA_ARGS__)
 #define CTERM_FPTR(name, ret, ...) ret (*name)(__VA_ARGS__)

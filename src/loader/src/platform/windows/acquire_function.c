@@ -1,5 +1,5 @@
 /**
-	CTerm -- Basic virtual terminal
+    CTerm -- Basic virtual terminal
     Copyright (C) 2024  Sergei Baigerov
 
     This program is free software: you can redistribute it and/or modify
@@ -15,23 +15,20 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-	You can contact Sergei Baigerov in Discord -- @dogotrigger
+    You can contact Sergei Baigerov in Discord -- @dogotrigger
 */
 
+#ifdef _WIN32
+
 #include <cterm/cterm.h>
-#include <stdio.h>
+#include <cterm/cterm_general_tools.h>
+#include <stddef.h>
+#include <string.h>
+#include <stdlib.h>
+#include <windows.h>
 
-bool execute(struct cterm_command *command) {
-    struct cterm_instance *instance = command->linked_instance;
-
-    instance->internal_funcs.cprintf(instance, "Hello, World!\n");
-    instance->internal_funcs.log(instance, instance->log_file_path, "Hello, World!\n");
-
-    return true;
+void* _ctermInternalNAcquireFunction(struct cterm_native_module module, const char* func_name) {
+    return GetProcAddress(module.native_handle, func_name);
 }
 
-void on_init(struct cterm_module *module) {
-    _ctermRegisterCommand(module->cterm_instance, "test", "Hello, World!", execute);
-}
-
-CTERM_INIT_MODULE("test module", "official testing module", "v1.0.0");
+#endif

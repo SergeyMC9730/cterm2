@@ -19,19 +19,21 @@
 */
 
 #include <cterm/cterm.h>
+#include <cterm/cterm_command_line.h>
+#include <cterm/cterm_general_tools.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
-bool execute(struct cterm_command *command) {
-    struct cterm_instance *instance = command->linked_instance;
+char *_ctermInternalFilterInput(const char *v, char f) {
+    char *str = _ctermCopyString(v);
+    unsigned int len = strlen(str);
 
-    instance->internal_funcs.cprintf(instance, "Hello, World!\n");
-    instance->internal_funcs.log(instance, instance->log_file_path, "Hello, World!\n");
+    for (unsigned int i = 0; i < len; i++) {
+        if (str[i] == f) {
+            str[i] = 0;
+        }
+    }
 
-    return true;
+    return str;
 }
-
-void on_init(struct cterm_module *module) {
-    _ctermRegisterCommand(module->cterm_instance, "test", "Hello, World!", execute);
-}
-
-CTERM_INIT_MODULE("test module", "official testing module", "v1.0.0");
