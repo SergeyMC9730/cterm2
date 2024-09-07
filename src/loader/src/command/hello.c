@@ -18,23 +18,16 @@
 	You can contact Sergei Baigerov in Discord -- @dogotrigger
 */
 
-#include <stdio.h>
-#include <cterm/launcher.h>
-#include <cterm/cterm_command_line.h>
-#include <cterm/cterm_general_macros.h>
 #include <cterm/cterm.h>
-#include <stdlib.h>
+#include <stddef.h>
 
-int main() {
-    _ctLauncherPrintLicense();
+#define CPRINTF(format, ...) instance->internal_funcs.cprintf(instance, format, __VA_ARGS__)
 
-    // create instance
-    struct cterm_instance instance = _ctermInit(true);
+bool _ctermInternalHelloCommand(struct cterm_command *command) {
+    struct cterm_instance *instance = command->linked_instance;
 
-    // setup internal command line
-    _ctermInitCommandLine(&instance, stdin, stdout);
-    
-    _ctermClose(&instance);
+    CPRINTF("Hello, World!\n", 0);
+    instance->internal_funcs.log(instance, instance->log_file_path, "Hello, World!\n");
 
-	return 0;
+    return true;
 }

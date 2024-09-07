@@ -18,23 +18,25 @@
 	You can contact Sergei Baigerov in Discord -- @dogotrigger
 */
 
-#include <stdio.h>
-#include <cterm/launcher.h>
-#include <cterm/cterm_command_line.h>
-#include <cterm/cterm_general_macros.h>
 #include <cterm/cterm.h>
+#include <cterm/cterm_command_line.h>
+#include <cterm/cterm_general_tools.h>
+#include <cterm/cterm_general_macros.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
-int main() {
-    _ctLauncherPrintLicense();
+// try to detect ansi command inside the input string
+//
+// the last element inside this array is CTEnd
+//
+// array is being allocated inside this function and
+TERMCMD_TYPE *_ctermDetectAnsiCommands(const char *input) {
+    unsigned int commands = 0;
+    unsigned int command_size = sizeof(TERMCMD_TYPE);
 
-    // create instance
-    struct cterm_instance instance = _ctermInit(true);
+    TERMCMD_TYPE *result = NULL;
 
-    // setup internal command line
-    _ctermInitCommandLine(&instance, stdin, stdout);
-    
-    _ctermClose(&instance);
-
-	return 0;
+    // char pattern_arrow_up
+    return result;
 }

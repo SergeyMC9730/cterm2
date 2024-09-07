@@ -20,8 +20,6 @@
 
 #include <cterm/cterm.h>
 #include <stddef.h>
-#include <stdlib.h>
-#include <string.h>
 
 #define CPRINTF(format, ...) instance->internal_funcs.cprintf(instance, format, __VA_ARGS__)
 

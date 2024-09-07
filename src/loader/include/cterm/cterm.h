@@ -114,7 +114,10 @@ struct cterm_instance {
 struct cterm_instance _ctermInit(bool log_into_stdout);
 
 struct cterm_module _ctermLoadModule(struct cterm_instance *instance, const char *module_path);
+
+#ifndef _NO_PLATFORM_CODE_
 struct cterm_native_module _ctermLoadNativeLibrary(const char *library_path);
+#endif
 
 // inits command line for this instance
 // this is a synchronous function! this function would exit only on an according command

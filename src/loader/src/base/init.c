@@ -59,6 +59,13 @@ struct cterm_instance _ctermInit(bool log_into_stdout) {
     if (log_into_stdout && CTERM_INIT_EXTRA_LOG_IO) {
         i.log_io_extra.input = stdin;
         i.log_io_extra.output = stdout;
+
+#ifdef __unix__
+#ifndef _USE_IO_BUFFERING_
+    setbuf(i.log_io_extra.input, NULL);
+    setbuf(i.log_io_extra.output, NULL);
+#endif
+#endif
     }
 
     // print early welcome message

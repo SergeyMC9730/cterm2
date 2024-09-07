@@ -36,6 +36,12 @@ enum cterm_internal_commands {
     ICommandLine,
     ICommandExit
 };
+enum cterm_terminal_command {
+    CNone,
+    CArrowUp,
+    CArrowDown,
+    CTEnd
+};
 
 struct cterm_execute_result {
     bool execute_successful;
@@ -46,6 +52,18 @@ struct cterm_execute_result {
 
     char *executed_command;
 };
+
+// used type for _ctermDetectAnsiCommands could be
+// changed in the future
+#define TERMCMD_TYPE enum cterm_terminal_command
+
+// try to detect ansi command inside the input string
+//
+// the last element inside this array is CTEnd
+//
+// array is being allocated inside this function and
+// should be freed after use
+TERMCMD_TYPE *_ctermDetectAnsiCommands(const char *input);
 
 #ifdef __cplusplus
 }

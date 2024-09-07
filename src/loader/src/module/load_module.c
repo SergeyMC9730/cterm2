@@ -23,6 +23,7 @@
 
 struct cterm_module _ctermLoadModule(struct cterm_instance *instance, const char *module_path) {
     struct cterm_module mod = {};
+#ifndef _NO_PLATFORM_CODE_
     mod.native_representation = _ctermLoadNativeLibrary(module_path);
 
     if (!mod.native_representation.load_successful) {
@@ -100,6 +101,7 @@ struct cterm_module _ctermLoadModule(struct cterm_instance *instance, const char
     mod.on_init(&mod);
 
     mod.load_successful = true;
+#endif
 
     return mod;
 }

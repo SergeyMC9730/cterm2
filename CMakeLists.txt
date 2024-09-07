@@ -18,7 +18,7 @@ if (UNIX)
 		dl
 	)
 
-	message(STATUS "Compiling CTerm for Unix-based systems")
+	message(STATUS "Compiling CTerm for Unix-like systems")
 endif (UNIX)
 if (WIN32)
     set (CTERM_NATIVE_SRC
@@ -33,7 +33,22 @@ if (WIN32)
 	message(STATUS "Compiling CTerm for NT-based systems")
 endif (WIN32)
 
-add_library(${CTERM_LIBRARY_NAME} SHARED
+set(CTERM_LIBRARY_TYPE SHARED)
+
+if (NO_PLATFORM_CODE)
+	set(CTERM_LIBRARY_TYPE STATIC)
+	set(CTERM_NATIVE_SRC "")
+	set(CTERM_NATIVE_LIBS "")
+	add_compile_definitions(_NO_PLATFORM_CODE_)
+
+	message(STATUS "Compiling CTerm for low-end systems (No Platform Code)")
+endif()
+
+if (USE_IO_BUFFERING)
+	add_compile_definitions(_USE_IO_BUFFERING_)
+endif()
+
+add_library(${CTERM_LIBRARY_NAME} ${CTERM_LIBRARY_TYPE}
 	src/loader/src/base/init.c
 	src/loader/src/base/log.c
 	src/loader/src/base/time.c
@@ -55,6 +70,8 @@ add_library(${CTERM_LIBRARY_NAME} SHARED
 	src/loader/src/base/close.c
 	src/loader/src/command/license.c
 	src/loader/src/command/filter_input.c
+	src/loader/src/command/ansi_detection.c
+	src/loader/src/command/hello.c
 
 	${CTERM_NATIVE_SRC}
 )
@@ -77,8 +94,12 @@ target_link_libraries(${CTERM_LAUNCHER_NAME} ${CTERM_LIBRARY_NAME})
 
 # -------------------------------------------------
 
-add_library(cterm_ext_test SHARED src/applications/helloworld/src/main.c)
-target_include_directories(cterm_ext_test PRIVATE
-	${CTERM_API_INCLUDES}
-)
-target_link_libraries(cterm_ext_test ${CTERM_LIBRARY_NAME})
+if (NO_CTERM_MODULES)
+	message(STATUS "Compiling CTerm without extra modules")
+else()
+	add_library(cterm_ext_test SHARED src/applications/helloworld/src/main.c)
+	target_include_directories(cterm_ext_test PRIVATE
+		${CTERM_API_INCLUDES}
+	)
+	target_link_libraries(cterm_ext_test ${CTERM_LIBRARY_NAME})
+endif()

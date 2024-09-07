@@ -25,10 +25,10 @@
 #include <string.h>
 
 char *_ctermInternalGetModPrefix(const char *command) {
-    unsigned int size = strlen(command) + 2 + 1;
+    unsigned int size = strlen(command) + 5 + 1;
     char *data = (char *)malloc(size);
 
-    snprintf(data, size, " [%s]  ", command);
+    snprintf(data, size, "* [%s]  ", command);
 
     return data;
 }

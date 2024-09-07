@@ -28,7 +28,11 @@
 
 void _ctermInternalPrintStringArray(char **argv, int argc) {
     for (int i = 0; i < argc; i++) {
-        printf(" - %d -> %s (%ld)\n", i, argv[i], strlen(argv[i]));
+        if (sizeof(size_t) == 8) {
+            printf(" - %d -> %s (%ld)\n", i, argv[i], strlen(argv[i]));
+        } else {
+            printf(" - %d -> %s (%d)\n", i, argv[i], strlen(argv[i]));
+        }
     }
 }
 
@@ -40,12 +44,20 @@ extern char *_ctermInternalFilterInput(const char *v, char f);
 
 extern bool _ctermInternalHelp(struct cterm_command *command);
 extern bool _ctermInternalLicenseCommand(struct cterm_command *command);
+extern bool _ctermInternalHelloCommand(struct cterm_command *command);
 
 // inits command line for this instance
 // this is a synchronous function! this function would exit only on an according command
 void _ctermInitCommandLine(struct cterm_instance *instance, FILE *_input, FILE *output) {
     instance->command_line.input = _input;
     instance->command_line.output = output;
+
+#ifdef __unix__
+#ifndef _USE_IO_BUFFERING_
+    setbuf(instance->command_line.input, NULL);
+    setbuf(instance->command_line.output, NULL);
+#endif
+#endif
     
     bool should_exit = false;
 
@@ -54,6 +66,7 @@ void _ctermInitCommandLine(struct cterm_instance *instance, FILE *_input, FILE *
     _ctermRegisterCommand(instance, "exit", "Exit from terminal", _ctermInternalHelp);
     _ctermRegisterCommand(instance, "line", "Internal command line", _ctermInternalHelp);
     _ctermRegisterCommand(instance, "license", "See license", _ctermInternalLicenseCommand);
+    _ctermRegisterCommand(instance, "hello", "Print hello world", _ctermInternalHelloCommand);
 
     CPRINTF("\n--- Welcome to CTerm %s\n\b", _ctermGetVersion());
 

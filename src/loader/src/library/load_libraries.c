@@ -56,6 +56,12 @@ void _ctermLoadLibrariesFromFolder(struct cterm_instance *instance, const char *
 
     instance->internal_funcs.log(instance, instance->log_file_path, "* loading libraries from %s ... : ", _path);
     
+#ifdef _NO_PLATFORM_CODE_
+    instance->internal_funcs.log(instance, instance->log_file_path, "FAILED (DISABLED)\n");
+
+    return;
+#else
+
     // try to open specified directory
 #ifdef __unix__
     char* path = _ctermCopyString(_path);
@@ -173,5 +179,6 @@ void _ctermLoadLibrariesFromFolder(struct cterm_instance *instance, const char *
     FindClose(hFind);
 #endif
 
-    free(path);
+    free(path); 
+#endif
 }
