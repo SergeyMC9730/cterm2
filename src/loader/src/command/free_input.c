@@ -22,7 +22,9 @@
 #include <stdlib.h>
 
 void _ctermInternalCleanupInput(struct cterm_command_line_input input) {
-    for (int i = 0; i < input.argument_list_size; i++) {
+    int i = 0;
+
+    for (i = 0; i < input.argument_list_size; i++) {
         free(input.argument_list[i]);
     }
 

@@ -28,7 +28,9 @@
 bool _ctermInternalContainsOnlySymbol(const char *str, char c) {
     unsigned int len = strlen(str);
 
-    for (unsigned int i = 0; i < len; i++) {
+    unsigned int i = 0;
+
+    for (i = 0; i < len; i++) {
         if (str[i] != c) return false;
     }
 
@@ -80,7 +82,9 @@ struct cterm_command_line_input _ctermInternalParseInput(const char *_user_input
 
     bool inside_string = false;
 
-    for (unsigned int i = 0; i < len; i++) {
+    unsigned int i = 0;
+
+    for (i = 0; i < len; i++) {
         bool should_split = false;
         bool should_split_max = false;
         char current_char = user_input[i];

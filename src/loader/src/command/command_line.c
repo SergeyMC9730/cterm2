@@ -27,7 +27,9 @@
 #define CPRINTF(format, ...) instance->internal_funcs.cprintf(instance, format, __VA_ARGS__)
 
 void _ctermInternalPrintStringArray(char **argv, int argc) {
-    for (int i = 0; i < argc; i++) {
+    int i = 0;
+
+    for (i = 0; i < argc; i++) {
         if (sizeof(size_t) == 8) {
             printf(" - %d -> %s (%ld)\n", i, argv[i], strlen(argv[i]));
         } else {

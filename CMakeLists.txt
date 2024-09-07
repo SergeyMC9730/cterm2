@@ -9,6 +9,9 @@ set(CTERM_API_INCLUDES
 	src/loader/include
 )
 
+set(CMAKE_C_STANDARD 90)
+set(CMAKE_C_STANDARD_REQUIRED TRUE)
+
 if (UNIX)
     set (CTERM_NATIVE_SRC 
 		src/loader/src/platform/linux/load_native_lib.c
@@ -103,3 +106,5 @@ else()
 	)
 	target_link_libraries(cterm_ext_test ${CTERM_LIBRARY_NAME})
 endif()
+
+# --------------------------------------------------

@@ -59,7 +59,9 @@ bool _ctermInternalLicenseCommand(struct cterm_command *command) {
             CPRINTF("Select this command to continue:\n", 0);
         }
 
-        for (unsigned char i = 0; i < len; i++) {
+        unsigned char i = 0;
+
+        for (i = 0; i < len; i++) {
             CPRINTF("   - \"%s\" -> %s\n", available_commands[i], available_descriptions[i]);
         }
 
@@ -86,7 +88,9 @@ bool _ctermInternalLicenseCommand(struct cterm_command *command) {
                 CPRINTF("Select this command to continue:\n", 0);
             }
 
-            for (unsigned char i = 0; i < len; i++) {
+            unsigned char i = 0;
+
+            for (i = 0; i < len; i++) {
                 CPRINTF("   - \"%s\" -> %s\n", available_commands[i], available_descriptions[i]);
             }
 

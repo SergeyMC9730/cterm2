@@ -28,8 +28,9 @@
 char *_ctermInternalFilterInput(const char *v, char f) {
     char *str = _ctermCopyString(v);
     unsigned int len = strlen(str);
+    unsigned int i = 0;
 
-    for (unsigned int i = 0; i < len; i++) {
+    for (i = 0; i < len; i++) {
         if (str[i] == f) {
             str[i] = 0;
         }

@@ -28,7 +28,9 @@ unsigned int _ctermInternalGetCommandIndex(struct cterm_instance *instance, cons
         return 0xFFFFFFFF;
     }
 
-    for (unsigned int i = 0; i < instance->commands_size; i++) {
+    unsigned int i = 0;
+
+    for (i = 0; i < instance->commands_size; i++) {
         struct cterm_command *ref = instance->commands + i;
 
         if (strcmp(ref->name, name)) continue;

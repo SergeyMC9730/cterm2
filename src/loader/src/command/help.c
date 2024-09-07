@@ -29,7 +29,9 @@
 bool _ctermInternalHelp(struct cterm_command *_command_ref) {
     struct cterm_instance *instance = _command_ref->linked_instance;
 
-    for (unsigned int i = 0; i < instance->commands_size; i++) {
+    unsigned int i = 0;
+
+    for (i = 0; i < instance->commands_size; i++) {
         struct cterm_command *command_ref = instance->commands + i;
 
         CPRINTF("%s - %s\n", command_ref->name, command_ref->description);

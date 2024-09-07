@@ -33,8 +33,10 @@ cterm_command_alloc _ctermGetCommand(struct cterm_instance *instance, const char
     // check if command array is not accessible
     if (instance->commands == NULL) return _command;
 
+    unsigned int i = 0;
+
     // loop through all commands available
-    for (unsigned int i = 0; i < instance->commands_size; i++) {
+    for (i = 0; i < instance->commands_size; i++) {
         // get command reference
         struct cterm_command *cmd_ptr = instance->commands + i;
         
